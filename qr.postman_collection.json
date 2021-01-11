@@ -1,0 +1,171 @@
+{
+	"info": {
+		"_postman_id": "6c1173cb-e6c6-455c-8fe1-06d98b3729c7",
+		"name": "IZIPAYVIRTUAL - Desarrollo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Genera QR",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var CryptoJS    = require(\"crypto-js\");\r",
+							"var moment      = require('moment');\r",
+							"\r",
+							"var fechahora   = moment().format(\"YYYYMMDDHHmmssSS\");\r",
+							"var HashCliente = \"9626AF2EFFC76EC88014C33FCE5F6226DFECB766A46BD8985592907F7F6A67287C7ED9CCB74DF34DB7B9C58B33CC7856C161211F62AD4E842F5946CF35B38F21\";\r",
+							"\r",
+							"// Valor para el parametro HEADER.Authorization\r",
+							"//---------------------------------------------------------\r",
+							"var salt = CryptoJS.enc.Utf8.parse(fechahora + fechahora);\r",
+							"\r",
+							"var key512Bits_5_Iterations = CryptoJS.PBKDF2(HashCliente, salt, {\r",
+							"  keySize: 512 / 32,\r",
+							"  iterations: 5\r",
+							"});\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"gg_authorization\", key512Bits_5_Iterations);\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"gg_fechahora\", fechahora);\r",
+							"\r",
+							"var merchant_code       = \"8110328\";\r",
+							"var tipo_qr             = \"12\";\r",
+							"var transaction_amount  = \"9.10\";\r",
+							"var codigo_moneda       = \"604\";\r",
+							"var numero_celular      = \"996575797\";\r",
+							"var imei                = \"348518349303003\";\r",
+							"var apikey              = \"D45B7C88-D7E2-4E9E-B170-3B66F4225BDD\";\r",
+							"var idunico             = \"IZISMART\";\r",
+							"var tipo_terminal       = \"IZIPAYVIR\";\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"gg_merchant_code\", merchant_code);\r",
+							"postman.setEnvironmentVariable(\"gg_tipo_qr\", tipo_qr);\r",
+							"postman.setEnvironmentVariable(\"gg_transaction_amount\", transaction_amount);\r",
+							"postman.setEnvironmentVariable(\"gg_codigo_moneda\", codigo_moneda);\r",
+							"postman.setEnvironmentVariable(\"gg_numero_celular\", numero_celular);\r",
+							"postman.setEnvironmentVariable(\"gg_imei\", imei);\r",
+							"postman.setEnvironmentVariable(\"gg_apikey\", apikey);\r",
+							"postman.setEnvironmentVariable(\"gg_idunico\", idunico);\r",
+							"postman.setEnvironmentVariable(\"gg_tipo_terminal\", tipo_terminal);\r",
+							"\r",
+							"\r",
+							"var firma = CryptoJS.SHA512(merchant_code+tipo_qr+transaction_amount+codigo_moneda+numero_celular+imei+tipo_terminal+apikey+idunico);\r",
+							"\r",
+							"postman.setEnvironmentVariable(\"gg_firma\", firma.toString().toUpperCase());\r",
+							"//---------------------------------------------------------\r",
+							"\r",
+							"\r",
+							"function crc16(s) {\r",
+							"    var str = s;\r",
+							"    var crc = 0xFFFF;\r",
+							"    for (var c = 0; c < str.length; c++) {\r",
+							"        crc ^= str.charCodeAt(c) << 8;\r",
+							"        for (var i = 0; i < 8; i++) {\r",
+							"            if (crc & 0x8000)\r",
+							"                crc = (crc << 1) ^ 0x1021;\r",
+							"            else\r",
+							"                crc = crc << 1;\r",
+							"        }\r",
+							"    }\r",
+							"    return (\"0000\" + (crc & 0xFFFF).toString(16).toUpperCase()).substr(-4);\r",
+							"}\r",
+							"\r",
+							"function luhn_checksum(code) {\r",
+							"    var len = code.length\r",
+							"    var parity = len % 2\r",
+							"    var sum = 0\r",
+							"    for (var i = len-1; i >= 0; i--) {\r",
+							"        var d = parseInt(code.charAt(i))\r",
+							"        if (i % 2 == parity) { d *= 2 }\r",
+							"        if (d > 9) { d -= 9 }\r",
+							"        sum += d\r",
+							"    }\r",
+							"    return sum % 10\r",
+							"}\r",
+							"\r",
+							"function stringToHex (tmp) {\r",
+							"    var str = '',\r",
+							"        i = 0,\r",
+							"        tmp_len = tmp.length,\r",
+							"        c;\r",
+							" \r",
+							"    for (; i < tmp_len; i += 1) {\r",
+							"        c = tmp.charCodeAt(i);\r",
+							"        str += d2h(c) + ' ';\r",
+							"    }\r",
+							"    return str;\r",
+							"}\r",
+							"\r",
+							"function hexToString (tmp) {\r",
+							"    var arr = tmp.split(' '),\r",
+							"        str = '',\r",
+							"        i = 0,\r",
+							"        arr_len = arr.length,\r",
+							"        c;\r",
+							" \r",
+							"    for (; i < arr_len; i += 1) {\r",
+							"        c = String.fromCharCode( h2d( arr[i] ) );\r",
+							"        str += c;\r",
+							"    }\r",
+							" \r",
+							"    return str;\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "fechahora",
+						"value": "{{gg_fechahora}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{gg_authorization}}",
+						"type": "text"
+					},
+					{
+						"key": "Apikey",
+						"value": "D45B7C88-D7E2-4E9E-B170-3B66F4225BDD",
+						"type": "text"
+					},
+					{
+						"key": "idunico",
+						"value": "{{gg_idunico}}",
+						"type": "text"
+					},
+					{
+						"key": "Firma",
+						"value": "{{gg_firma}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"codComercio\":\"{{gg_merchant_code}}\",\r\n\"tipo_qr\":\"{{gg_tipo_qr}}\",\r\n\"monto\":\"{{gg_transaction_amount}}\",\r\n\"moneda\":\"{{gg_codigo_moneda}}\",\r\n\"numCelular\":\"{{gg_numero_celular}}\",\r\n\"imei\":\"{{gg_imei}}\",\r\n\"tipoDeTerminal\":\"{{gg_tipo_terminal}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://testizivirtual.izipay.pe:9443/WebAppOperaciones/api/appmovil/generarQR"
+			},
+			"response": []
+		},
+
+	]
+}
